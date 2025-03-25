@@ -5,90 +5,141 @@
   <meta charset="UTF-8" />
   <title>Teacher Dashboard</title>
   <style>
+.dashboard-wrapper { padding-bottom: 20px; }
     body {
       font-family: 'Quicksand', sans-serif;
-      margin: 20px;
-      background: #f9fbfd;
+      margin: 0;
+      padding: 30px;
+      background-color: var(--bg-color, #e6f7ff);
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 1000px;
+      margin: auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .nav-bar a, .nav-bar button {
+      padding: 10px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      border: none;
+      background: #cce5ff;
+      font-weight: bold;
+      cursor: pointer;
       color: #333;
+      margin-left: 8px;
     }
-    h1, h2 {
-      margin-bottom: 10px;
+
+    .fancy-greeting {
+      font-family: 'Georgia', serif;
+      font-size: 20px;
+      font-style: italic;
+      text-align: center;
+      margin-bottom: 25px;
+      color: #444;
     }
+
     .quick-check {
       display: flex;
-      gap: 15px;
+      gap: 10px;
       margin-bottom: 20px;
     }
+
     .zone-summary {
       flex: 1;
       padding: 10px;
-      border-radius: 8px;
+      border-radius: 10px;
       text-align: center;
       font-weight: bold;
     }
+
     .blue { background-color: #cce5ff; }
     .green { background-color: #d4edda; }
     .yellow { background-color: #fff3cd; }
     .red { background-color: #f8d7da; }
+
     .filters, .charts {
-      margin-bottom: 30px;
+      margin-top: 20px;
     }
-    .charts canvas {
-      max-width: 100%;
-      margin-bottom: 20px;
-    }
-    select, input {
-      margin: 5px;
-      padding: 6px;
+
+    
+  select, input {
+    font-family: 'Quicksand', 'Segoe UI', sans-serif;
+    font-size: 14px;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 8px 10px;
+    border-radius: 6px;
+    margin: 6px 6px 10px 0;
+  
+      padding: 8px;
+      border-radius: 6px;
+      margin-right: 8px;
     }
   </style>
 </head>
-
-  <body>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h1>📊 Teacher Dashboard</h1>
+<body>
+  <div class="container">
+    <div class="nav-bar">
       <div>
-        <a href="zones.html" style="margin-right: 10px; padding: 8px 12px; background: #cce5ff; border-radius: 6px; text-decoration: none;">🏠 Zones</a>
-        <a href="settings.html" style="margin-right: 10px; padding: 8px 12px; background: #cce5ff; border-radius: 6px; text-decoration: none;">⚙️ Settings</a>
-        <button id="logout" style="padding: 8px 12px; background: #ffdddd; border: none; border-radius: 6px; cursor: pointer;">🚪 Logout</button>
+        <a href="zones.html">🏠 Zones</a>
+        <a href="settings.html">⚙️ Settings</a>
       </div>
+      <button id="logout">🚪 Logout</button>
     </div>
-  
-  <h1>📊 Teacher Dashboard</h1>
 
-  <section class="quick-check">
-    <div class="zone-summary blue" id="blueSummary">🔵 Blue: 0</div>
-    <div class="zone-summary green" id="greenSummary">🟢 Green: 0</div>
-    <div class="zone-summary yellow" id="yellowSummary">🟡 Yellow: 0</div>
-    <div class="zone-summary red" id="redSummary">🔴 Red: 0</div>
-  </section>
+    <div class="fancy-greeting" id="greeting">Welcome back, Teacher! 💛</div>
 
-  <section class="filters">
-    <h2>🎛 Filters</h2>
-    <select id="classFilter"><option value="">Select Class</option></select>
-    <select id="sessionFilter"><option value="">Select Session</option></select>
-    <input type="date" id="dateFilter" />
-    <select id="studentFilter"><option value="">Select Student</option></select>
-    <button id="applyFilters">Apply</button>
-    <button id="exportCSV">Export CSV</button>
-  </section>
+    
+  <div class="dashboard-wrapper">
+<h3>📅 Weekly Data:</h3>
+  <div id="weeklyGrid" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 30px;">
+    <div><strong>Day</strong></div>
+    <div><strong>Session 1</strong></div>
+    <div><strong>Session 2</strong></div>
+    <div><strong>Session 3</strong></div>
+    <div><strong>Session 4</strong></div>
+    <div><strong>Session 5</strong></div>
+    <!-- Rows will be filled dynamically -->
+  </div>
 
-  <section class="charts">
-    <h2>📈 Visual Data</h2>
-    <canvas id="barChart"></canvas>
-    <canvas id="pieChart"></canvas>
-  </section>
+      <div class="zone-summary blue" id="blueSummary">🔵 Blue: 0</div>
+      <div class="zone-summary green" id="greenSummary">🟢 Green: 0</div>
+      <div class="zone-summary yellow" id="yellowSummary">🟡 Yellow: 0</div>
+      <div class="zone-summary red" id="redSummary">🔴 Red: 0</div>
+    </div>
+
+    <div class="filters">
+      <h3>🎛 Filters</h3>
+      <select id="classFilter"><option value="">Select Class</option></select>
+      <select id="sessionFilter"><option value="">Select Session</option></select>
+      <input type="date" id="dateFilter" />
+      <select id="studentFilter"><option value="">Select Student</option></select>
+      <button id="applyFilters">Apply</button>
+      <button id="exportCSV">Export CSV</button>
+    </div>
+
+    <div class="charts">
+      <canvas id="barChart" width="400" height="200"></canvas>
+      <canvas id="pieChart" width="400" height="200"></canvas>
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import {
-      getFirestore, collection, getDocs, doc
-    } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
-    import {
-      getAuth, onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
-
-    import Chart from "https://cdn.jsdelivr.net/npm/chart.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBTmZv-gavHAECU5kqjTyrdABfsk_oonsM",
@@ -103,64 +154,178 @@
     const db = getFirestore(app);
     const auth = getAuth();
 
-    let currentUser = null;
+    const greeting = document.getElementById("greeting");
+
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const name = userSnap.data().name || "Teacher";
+          const color = userSnap.data().color || "#e6f7ff";
+          document.body.style.setProperty("--bg-color", color);
+          greeting.textContent = `Welcome back, ${name}! 💛`;
+        }
+      }
+    });
+
+    document.getElementById("logout").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    });
+  
+    import Chart from "https://cdn.jsdelivr.net/npm/chart.js";
+
+    const barCtx = document.getElementById("barChart").getContext("2d");
+    const pieCtx = document.getElementById("pieChart").getContext("2d");
+    let barChart, pieChart;
+
+    function renderCharts(zoneCounts) {
+      if (barChart) barChart.destroy();
+      if (pieChart) pieChart.destroy();
+
+      barChart = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Blue', 'Green', 'Yellow', 'Red'],
+          datasets: [{
+            label: 'Check-Ins',
+            data: [zoneCounts.blue, zoneCounts.green, zoneCounts.yellow, zoneCounts.red],
+            backgroundColor: ['#cce5ff', '#d4edda', '#fff3cd', '#f8d7da']
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      pieChart = new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+          labels: ['Blue', 'Green', 'Yellow', 'Red'],
+          datasets: [{
+            data: [zoneCounts.blue, zoneCounts.green, zoneCounts.yellow, zoneCounts.red],
+            backgroundColor: ['#cce5ff', '#d4edda', '#fff3cd', '#f8d7da']
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
 
     function getCurrentWeekDates() {
       const today = new Date();
-      const start = new Date(today);
-      start.setDate(today.getDate() - today.getDay() + 1);
-      const dates = [];
-      for (let i = 0; i < 5; i++) {
-        const d = new Date(start);
-        d.setDate(start.getDate() + i);
-        dates.push(d.toISOString().split("T")[0]);
-      }
-      return dates;
+      const monday = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+      return Array.from({ length: 5 }, (_, i) => {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        return d.toISOString().split('T')[0];
+      });
     }
 
-    function updateQuickCheck(zoneCounts) {
+    async function loadWeeklySummary(user) {
+      const weekDates = getCurrentWeekDates();
+      const allLogs = await getDocs(collection(db, "users", user.uid, "logs"));
+      const zoneCounts = { blue: 0, green: 0, yellow: 0, red: 0 };
+
+      allLogs.forEach(doc => {
+        const entries = doc.data().entries || [];
+        entries.forEach(entry => {
+          if (weekDates.includes(entry.date)) {
+            zoneCounts[entry.zone]++;
+          }
+        });
+      });
+
       document.getElementById("blueSummary").textContent = `🔵 Blue: ${zoneCounts.blue}`;
       document.getElementById("greenSummary").textContent = `🟢 Green: ${zoneCounts.green}`;
       document.getElementById("yellowSummary").textContent = `🟡 Yellow: ${zoneCounts.yellow}`;
       document.getElementById("redSummary").textContent = `🔴 Red: ${zoneCounts.red}`;
+
+      renderCharts(zoneCounts);
     }
 
     onAuthStateChanged(auth, async user => {
-      if (!user) return;
-      currentUser = user;
-
-      const weekDates = getCurrentWeekDates();
-      const zoneCounts = { blue: 0, green: 0, yellow: 0, red: 0 };
-
-      for (const date of weekDates) {
-        const ref = doc(db, "users", user.uid, "logs", date);
-        const snap = await getDocs(collection(db, "users", user.uid, "logs"));
-        snap.forEach(log => {
-          const entries = log.data().entries || [];
-          entries.forEach(entry => {
-            if (weekDates.includes(entry.date)) {
-              zoneCounts[entry.zone]++;
-            }
-          });
-        });
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const name = userSnap.data().name || "Teacher";
+          const color = userSnap.data().color || "#e6f7ff";
+          document.body.style.setProperty("--bg-color", color);
+          greeting.textContent = `Welcome back, ${name}! 💛`;
+          await loadWeeklySummary(user);
+        }
       }
-
-      updateQuickCheck(zoneCounts);
-
-      // TODO: Populate class/session/student/date filters
-      // TODO: Load and display bar and pie charts
-      // TODO: Implement exportCSV logic
     });
   
-    document.getElementById("logout").addEventListener("click", () => {
-      import("https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js").then(module => {
-        const auth = module.getAuth();
-        module.signOut(auth).then(() => {
-          window.location.href = "index.html";
-        });
-      });
+    function createDot(color, count) {
+      return `<div style="display: inline-flex; align-items: center; margin: 2px;">
+        <div style="width: 16px; height: 16px; border-radius: 50%; background-color: ${color}; margin-right: 5px;"></div>
+        <span style="font-size: 12px;">${count}</span>
+      </div>`;
+    }
+
+    async function loadWeeklySessionGrid(user) {
+      const weekDates = getCurrentWeekDates();
+      const sessionCount = 5; // for demo; can be dynamic later
+      const zoneColors = { blue: '#cce5ff', green: '#d4edda', yellow: '#fff3cd', red: '#f8d7da' };
+      const grid = document.getElementById("weeklyGrid");
+
+      
+  const dateLabelMap = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  for (let d = 0; d < weekDates.length; d++) {
+    const date = weekDates[d];
+    const weekday = dateLabelMap[d];
+
+        const dateObj = new Date(date);
+        const weekday = dateObj.toLocaleDateString('en-AU', { weekday: 'long' });
+
+        const row = [`<div style="padding: 6px 8px; background: #f0f8ff; border-radius: 8px; font-weight: bold; border: 1px solid #c2d8f5;">${weekday}</div>`];
+
+        const logRef = doc(db, "users", user.uid, "logs", date);
+        const logSnap = await getDoc(logRef);
+        const sessionData = Array.from({ length: sessionCount }, () => ({ blue: 0, green: 0, yellow: 0, red: 0 }));
+
+        if (logSnap.exists()) {
+          const entries = logSnap.data().entries || [];
+          entries.forEach(entry => {
+            const sessionIndex = parseInt(entry.session.split(" ")[1]) - 1;
+            if (sessionData[sessionIndex] && sessionData[sessionIndex][entry.zone] !== undefined) {
+              sessionData[sessionIndex][entry.zone]++;
+            }
+          });
+        }
+
+        for (let i = 0; i < sessionCount; i++) {
+          const session = sessionData[i];
+          let cell = "";
+          for (const zone in session) {
+            if (session[zone] > 0) {
+              cell += createDot(zoneColors[zone], session[zone]);
+            }
+          }
+          row.push(`<div style="display:flex; flex-direction:column;">${cell || "-"}</div>`);
+        }
+
+        grid.insertAdjacentHTML("beforeend", row.join(""));
+      }
+    }
+
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const name = userSnap.data().name || "Teacher";
+          const color = userSnap.data().color || "#e6f7ff";
+          document.body.style.setProperty("--bg-color", color);
+          greeting.textContent = `Welcome back, ${name}! 💛`;
+          await loadWeeklySummary(user);
+          await loadWeeklySessionGrid(user);
+        }
+      }
     });
   </script>
 
+
+</div>
 </body>
 </html>
