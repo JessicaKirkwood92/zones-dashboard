@@ -19,25 +19,27 @@
     }
     .nav {
       display: flex;
-      justify-content: flex-end;
-      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
     }
-    .nav button {
-      padding: 8px 12px;
-      border: none;
+    .nav a, .nav button {
       background: #cce5ff;
+      padding: 8px 14px;
+      border: none;
       border-radius: 8px;
-      cursor: pointer;
+      text-decoration: none;
+      color: #333;
       font-weight: bold;
+      cursor: pointer;
     }
     #settingsPanel {
       display: none;
-      margin-top: 20px;
-      padding: 20px;
       background: #fff;
+      padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
     }
     textarea {
       width: 100%;
@@ -49,16 +51,17 @@
 </head>
 <body>
   <div class="nav">
-    <button onclick="toggleSettings()">⚙️ Settings</button>
-    <button onclick="logout()">🚪 Logout</button>
+    <div>
+      <a href="zones.html">← Back to Zones</a>
+    </div>
+    <div>
+      <button onclick="toggleSettings()">⚙️ Settings</button>
+      <button onclick="logout()">🚪 Logout</button>
+    </div>
   </div>
-
-  <h1>Teacher Dashboard</h1>
-  <div id="dailySummary"></div>
 
   <div id="settingsPanel">
     <h2>⚙️ Teacher Settings</h2>
-
     <label for="sessionCount">Number of Daily Sessions:</label>
     <select id="sessionCount">
       ${[...Array(7).keys()].map(i => `<option value="${i+2}">${i+2} sessions</option>`).join("")}
@@ -70,6 +73,9 @@
     <button onclick="saveClassEdit()">💾 Save Class</button>
     <button onclick="deleteClass()" style="background:#ffdede;margin-left:10px;">🗑️ Delete Class</button>
   </div>
+
+  <h1>Teacher Dashboard</h1>
+  <div id="dailySummary"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
