@@ -1,1 +1,94 @@
-<html><body><h1>Teacher Dashboard</h1></body></html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Teacher Dashboard</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; background: #f9fbfd; }
+    .zone-card { background: #fff; padding: 15px; margin: 10px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .logout-button {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 10px 16px;
+      background-color: #ffdede;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Teacher Dashboard</h1>
+  <button class="logout-button" onclick="logout()">Log Out</button>
+  <div id="dailySummary"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBTmZv-gavHAECU5kqjTyrdABfsk_oonsM",
+      authDomain: "zonesdashboard.firebaseapp.com",
+      projectId: "zonesdashboard",
+      storageBucket: "zonesdashboard.firebasestorage.app",
+      messagingSenderId: "121203751843",
+      appId: "1:121203751843:web:1ccb23a0fcbd09fe25b816",
+      measurementId: "G-CB8EVKZ0HF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore(app);
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return window.location.href = "index.html";
+      currentUser = user;
+      await renderDailySummary();
+    });
+
+    async function renderDailySummary() {
+      const container = document.getElementById("dailySummary");
+      container.innerHTML = "";
+
+      const logsRef = collection(db, "users", currentUser.uid, "logs");
+      const logsSnap = await getDocs(logsRef);
+      const logs = {};
+
+      logsSnap.forEach(docSnap => {
+        const date = docSnap.id;
+        const entries = docSnap.data().entries || [];
+        entries.forEach(entry => {
+          const key = `${date} | ${entry.session}`;
+          if (!logs[key]) logs[key] = { blue: 0, green: 0, yellow: 0, red: 0 };
+          logs[key][entry.zone]++;
+        });
+      });
+
+      Object.entries(logs).forEach(([key, zones]) => {
+        const card = document.createElement("div");
+        card.className = "zone-card";
+        card.innerHTML = `
+          <h3>${key}</h3>
+          🔵 Blue: ${zones.blue}<br>
+          🟢 Green: ${zones.green}<br>
+          🟡 Yellow: ${zones.yellow}<br>
+          🔴 Red: ${zones.red}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function logout() {
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    }
+  </script>
+</body>
+</html>
