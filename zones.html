@@ -389,5 +389,88 @@
   };
 </script>
 
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBTmZv-gavHAECU5kqjTyrdABfsk_oonsM",
+    authDomain: "zonesdashboard.firebaseapp.com",
+    projectId: "zonesdashboard",
+    storageBucket: "zonesdashboard.firebasestorage.app",
+    messagingSenderId: "121203751843",
+    appId: "1:121203751843:web:1ccb23a0fcbd09fe25b816",
+    measurementId: "G-CB8EVKZ0HF"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getFirestore(app);
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return window.location.href = "login.html";
+
+    const uid = user.uid;
+    const classDoc = doc(db, "users", uid, "classes", "Default");
+    const snapshot = await getDoc(classDoc);
+
+    let students = [];
+    if (snapshot.exists()) {
+      students = snapshot.data().students || [];
+    } else {
+      // Initial list (first-time login)
+      students = [
+        "Adella", "Aiden", "Kaileb", "Tahmila", "Max", "Liam", "Kaydence", "Jackson",
+        "Jack", "Amy", "Anna", "Parker", "Maia", "Mallakai", "Cooper", "Tyson", "Harper",
+        "Kamoura", "Hayden", "Emily", "Rylee", "Kate-Lyn", "Fox"
+      ];
+      await setDoc(classDoc, { students });
+    }
+
+    // Display students
+    const grid = document.querySelector(".student-grid");
+    grid.innerHTML = "";
+    students.forEach(name => {
+      const div = document.createElement("div");
+      div.className = "student";
+      div.textContent = name;
+      div.setAttribute("draggable", "true");
+      grid.appendChild(div);
+    });
+
+    // Enable drag + reset functions
+    initStudentListeners();
+  });
+
+  function initStudentListeners() {
+    document.querySelectorAll('.student').forEach(el => {
+      el.addEventListener('dragstart', (e) => {
+        if (el.classList.contains('disabled')) {
+          e.preventDefault();
+        } else {
+          e.dataTransfer.setData("text", e.target.textContent);
+        }
+      });
+
+      el.addEventListener('dblclick', () => {
+        el.classList.remove('disabled');
+        el.style.opacity = '1';
+        el.setAttribute('draggable', 'true');
+
+        document.querySelectorAll('.zone').forEach(zone => {
+          const icons = zone.querySelectorAll('.icon');
+          icons.forEach(icon => {
+            if (!icon.dataset.name || icon.dataset.name === el.textContent) {
+              icon.remove();
+            }
+          });
+        });
+      });
+    });
+  }
+</script>
+
 </body>
 </html>
