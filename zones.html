@@ -10,81 +10,108 @@
       background: #f9fbfd;
       margin: 0;
       padding: 20px;
+      text-align: center;
     }
-    .student-grid {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #fff;
-      padding: 10px;
-      z-index: 10;
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    .button-bar {
       display: flex;
-      flex-wrap: wrap;
+      justify-content: center;
       gap: 10px;
-      border-top: 2px solid #ccc;
+      margin-bottom: 15px;
     }
-    .student {
-      background: #d6ecff;
-      padding: 10px;
+
+    .button-bar button, .button-bar a {
+      padding: 10px 15px;
+      background: #cce5ff;
+      border: none;
       border-radius: 8px;
-      cursor: grab;
+      font-weight: bold;
+      text-decoration: none;
+      color: #333;
+      cursor: pointer;
     }
-    .zone-container {
+
+    .zones {
       display: flex;
+      justify-content: center;
       gap: 20px;
-      margin-bottom: 60px;
+      margin-bottom: 30px;
     }
+
     .zone {
       flex: 1;
       min-height: 200px;
-      background: #e0e0e0;
-      border-radius: 10px;
       padding: 10px;
-      position: relative;
+      border-radius: 10px;
+      font-weight: bold;
+      color: #333;
     }
+
+    .blue { background-color: #cce5ff; }
+    .green { background-color: #d4edda; }
+    .yellow { background-color: #fff3cd; }
+    .red { background-color: #f8d7da; }
+
+    .student-box {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .student-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .student {
+      background: #e0f0ff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: grab;
+    }
+
     .icon {
       font-size: 24px;
       margin: 5px;
     }
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .controls button {
-      padding: 8px 12px;
-      background: #cce5ff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
-  <div class="controls">
-    <div>
-      <label for="sessionSelect">Choose Session:</label>
-      <select id="sessionSelect"></select>
-    </div>
-    <div>
-      <button id="toggleBees" data-active="true">🐝 Hide Bees</button>
-      <button id="resetAll">🔄 Reset</button>
-      <a href="teacher-dashboard.html">📊 Dashboard</a>
-    </div>
+  <h2>🐝 Drag your name into the zone that matches how you feel</h2>
+
+  <div class="button-bar">
+    <button id="toggleBees" data-active="true">🐝 Hide Bees</button>
+    <button id="resetAll">🔄 Reset</button>
+    <a href="teacher-dashboard.html">📊 Dashboard</a>
+    <a href="settings.html">⚙️ Settings</a>
   </div>
 
-  <div class="zone-container">
-    <div class="zone" data-zone="blue" style="background:#cce5ff;">Blue Zone</div>
-    <div class="zone" data-zone="green" style="background:#d4edda;">Green Zone</div>
-    <div class="zone" data-zone="yellow" style="background:#fff3cd;">Yellow Zone</div>
-    <div class="zone" data-zone="red" style="background:#f8d7da;">Red Zone</div>
+  <label for="sessionSelect">Choose Session:</label>
+  <select id="sessionSelect"></select>
+
+  <div class="zones">
+    <div class="zone blue" data-zone="blue">Blue Zone</div>
+    <div class="zone green" data-zone="green">Green Zone</div>
+    <div class="zone yellow" data-zone="yellow">Yellow Zone</div>
+    <div class="zone red" data-zone="red">Red Zone</div>
   </div>
 
-  <div class="student-grid"></div>
+  <div class="student-box">
+    <h3>Student Names</h3>
+    <div class="student-grid"></div>
+  </div>
 
-  <script type="module">
+  <script>
     document.getElementById("toggleBees").addEventListener("click", () => {
       const btn = document.getElementById("toggleBees");
       const showing = btn.dataset.active === "true";
@@ -150,6 +177,62 @@
       opt.textContent = `Session ${i}`;
       sessionSelect.appendChild(opt);
     }
-  </script>
+  
+    // Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion
+    } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBTmZv-gavHAECU5kqjTyrdABfsk_oonsM",
+      authDomain: "zonesdashboard.firebaseapp.com",
+      projectId: "zonesdashboard",
+      storageBucket: "zonesdashboard.firebasestorage.app",
+      messagingSenderId: "121203751843",
+      appId: "1:121203751843:web:1ccb23a0fcbd09fe25b816"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth();
+
+    let currentUser = null;
+    let currentSession = "Session 1";
+    let currentDate = "2025-03-25";
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+      }
+    });
+
+    sessionSelect.addEventListener("change", () => {
+      currentSession = sessionSelect.value;
+    });
+
+    document.querySelectorAll(".zone").forEach(zone => {
+      zone.addEventListener("drop", async e => {
+        const name = e.dataTransfer.getData("text");
+        const zoneColor = zone.dataset.zone;
+        const entry = {
+          name: name,
+          zone: zoneColor,
+          session: currentSession,
+          date: currentDate
+        };
+        const logRef = doc(db, "users", currentUser.uid, "logs", currentDate);
+        const docSnap = await getDoc(logRef);
+        if (!docSnap.exists()) {
+          await setDoc(logRef, { entries: [entry] });
+        } else {
+          await updateDoc(logRef, {
+            entries: arrayUnion(entry)
+          });
+        }
+      });
+    });
+    </script>
 </body>
 </html>
