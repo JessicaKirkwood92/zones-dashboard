@@ -342,5 +342,52 @@
     }
     </script>
 
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBTmZv-gavHAECU5kqjTyrdABfsk_oonsM",
+    authDomain: "zonesdashboard.firebaseapp.com",
+    projectId: "zonesdashboard",
+    storageBucket: "zonesdashboard.firebasestorage.app",
+    messagingSenderId: "121203751843",
+    appId: "1:121203751843:web:1ccb23a0fcbd09fe25b816",
+    measurementId: "G-CB8EVKZ0HF"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getFirestore(app);
+
+  let currentUser = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUser = user;
+      window.currentUserId = user.uid;
+    } else {
+      window.location.href = "login.html";
+    }
+  });
+
+  window.saveCheckIn = async function(name, zone, date) {
+    if (!currentUser) return;
+
+    const logRef = doc(db, "users", currentUser.uid, "logs", date);
+    const logSnap = await getDoc(logRef);
+
+    if (!logSnap.exists()) {
+      await setDoc(logRef, { entries: [{ name, zone }] });
+    } else {
+      await updateDoc(logRef, {
+        entries: arrayUnion({ name, zone })
+      });
+    }
+  };
+</script>
+
 </body>
 </html>
