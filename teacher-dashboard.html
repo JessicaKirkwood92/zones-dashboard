@@ -90,5 +90,93 @@
       });
     }
   </script>
+
+<div class="settings" style="margin-top: 20px;">
+  <h2>⚙️ Teacher Settings</h2>
+  <label for="sessionCount">How many sessions per day?</label>
+  <select id="sessionCount">
+    ${[...Array(7).keys()].map(i => `<option value="${i+2}">${i+2} sessions</option>`).join("")}
+  </select>
+
+  <div style="margin-top: 15px;">
+    <label for="classEditSelect">Edit Class:</label>
+    <select id="classEditSelect"></select>
+    <textarea id="classEditList" rows="6" cols="30" placeholder="Enter student names, one per line"></textarea><br/>
+    <button onclick="saveClassEdit()">💾 Save Changes</button>
+    <button onclick="deleteClass()" style="background:#ffcccc;margin-left:10px;">🗑️ Delete Class</button>
+  </div>
+</div>
+
 </body>
+
+<script type="module">
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc, getDocs, updateDoc, collection } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+
+  const auth = getAuth();
+  const db = getFirestore();
+
+  let currentUser = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    currentUser = user;
+    await loadSessionSetting();
+    await populateClassEditDropdown();
+  });
+
+  async function loadSessionSetting() {
+    const ref = doc(db, "users", currentUser.uid);
+    const snap = await getDoc(ref);
+    if (snap.exists() && snap.data().sessionCount) {
+      document.getElementById("sessionCount").value = snap.data().sessionCount;
+    }
+
+    document.getElementById("sessionCount").addEventListener("change", async (e) => {
+      await setDoc(ref, { sessionCount: parseInt(e.target.value) }, { merge: true });
+    });
+  }
+
+  async function populateClassEditDropdown() {
+    const dropdown = document.getElementById("classEditSelect");
+    dropdown.innerHTML = "";
+    const snap = await getDocs(collection(db, "users", currentUser.uid, "classes"));
+    snap.forEach(doc => {
+      const opt = document.createElement("option");
+      opt.value = doc.id;
+      opt.textContent = doc.id;
+      dropdown.appendChild(opt);
+    });
+
+    dropdown.addEventListener("change", loadSelectedClassList);
+    loadSelectedClassList();
+  }
+
+  async function loadSelectedClassList() {
+    const className = document.getElementById("classEditSelect").value;
+    const ref = doc(db, "users", currentUser.uid, "classes", className);
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const list = snap.data().students || [];
+      document.getElementById("classEditList").value = list.join("\n");
+    }
+  }
+
+  async function saveClassEdit() {
+    const className = document.getElementById("classEditSelect").value;
+    const names = document.getElementById("classEditList").value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+    const ref = doc(db, "users", currentUser.uid, "classes", className);
+    await setDoc(ref, { students: names });
+    alert("Class list updated.");
+  }
+
+  async function deleteClass() {
+    const className = document.getElementById("classEditSelect").value;
+    if (!confirm(`Are you sure you want to delete "${className}" and all its data?`)) return;
+    await deleteDoc(doc(db, "users", currentUser.uid, "classes", className));
+    alert("Class deleted.");
+    await populateClassEditDropdown();
+  }
+</script>
+
 </html>
