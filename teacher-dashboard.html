@@ -4,8 +4,143 @@
 <head>
   <meta charset="UTF-8" />
   <title>Teacher Dashboard</title>
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      margin: 20px;
+      background: #f9fbfd;
+      color: #333;
+    }
+    h1, h2 {
+      margin-bottom: 10px;
+    }
+    .quick-check {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .zone-summary {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .blue { background-color: #cce5ff; }
+    .green { background-color: #d4edda; }
+    .yellow { background-color: #fff3cd; }
+    .red { background-color: #f8d7da; }
+    .filters, .charts {
+      margin-bottom: 30px;
+    }
+    .charts canvas {
+      max-width: 100%;
+      margin-bottom: 20px;
+    }
+    select, input {
+      margin: 5px;
+      padding: 6px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Teacher Dashboard (charts and tracking go here)</h1>
+  <h1>📊 Teacher Dashboard</h1>
+
+  <section class="quick-check">
+    <div class="zone-summary blue" id="blueSummary">🔵 Blue: 0</div>
+    <div class="zone-summary green" id="greenSummary">🟢 Green: 0</div>
+    <div class="zone-summary yellow" id="yellowSummary">🟡 Yellow: 0</div>
+    <div class="zone-summary red" id="redSummary">🔴 Red: 0</div>
+  </section>
+
+  <section class="filters">
+    <h2>🎛 Filters</h2>
+    <select id="classFilter"><option value="">Select Class</option></select>
+    <select id="sessionFilter"><option value="">Select Session</option></select>
+    <input type="date" id="dateFilter" />
+    <select id="studentFilter"><option value="">Select Student</option></select>
+    <button id="applyFilters">Apply</button>
+    <button id="exportCSV">Export CSV</button>
+  </section>
+
+  <section class="charts">
+    <h2>📈 Visual Data</h2>
+    <canvas id="barChart"></canvas>
+    <canvas id="pieChart"></canvas>
+  </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, doc
+    } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+    import {
+      getAuth, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+
+    import Chart from "https://cdn.jsdelivr.net/npm/chart.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBTmZv-gavHAECU5kqjTyrdABfsk_oonsM",
+      authDomain: "zonesdashboard.firebaseapp.com",
+      projectId: "zonesdashboard",
+      storageBucket: "zonesdashboard.firebasestorage.app",
+      messagingSenderId: "121203751843",
+      appId: "1:121203751843:web:1ccb23a0fcbd09fe25b816"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth();
+
+    let currentUser = null;
+
+    function getCurrentWeekDates() {
+      const today = new Date();
+      const start = new Date(today);
+      start.setDate(today.getDate() - today.getDay() + 1);
+      const dates = [];
+      for (let i = 0; i < 5; i++) {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        dates.push(d.toISOString().split("T")[0]);
+      }
+      return dates;
+    }
+
+    function updateQuickCheck(zoneCounts) {
+      document.getElementById("blueSummary").textContent = `🔵 Blue: ${zoneCounts.blue}`;
+      document.getElementById("greenSummary").textContent = `🟢 Green: ${zoneCounts.green}`;
+      document.getElementById("yellowSummary").textContent = `🟡 Yellow: ${zoneCounts.yellow}`;
+      document.getElementById("redSummary").textContent = `🔴 Red: ${zoneCounts.red}`;
+    }
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) return;
+      currentUser = user;
+
+      const weekDates = getCurrentWeekDates();
+      const zoneCounts = { blue: 0, green: 0, yellow: 0, red: 0 };
+
+      for (const date of weekDates) {
+        const ref = doc(db, "users", user.uid, "logs", date);
+        const snap = await getDocs(collection(db, "users", user.uid, "logs"));
+        snap.forEach(log => {
+          const entries = log.data().entries || [];
+          entries.forEach(entry => {
+            if (weekDates.includes(entry.date)) {
+              zoneCounts[entry.zone]++;
+            }
+          });
+        });
+      }
+
+      updateQuickCheck(zoneCounts);
+
+      // TODO: Populate class/session/student/date filters
+      // TODO: Load and display bar and pie charts
+      // TODO: Implement exportCSV logic
+    });
+  </script>
 </body>
 </html>
