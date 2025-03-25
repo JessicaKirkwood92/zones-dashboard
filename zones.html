@@ -17,7 +17,7 @@
   </style>
 </head>
 <body>
-  <div class="controls">
+  <div class="controls"><button id="toggleBees">🐝 Toggle Bees</button>
     <div>
       <label for="sessionSelect">Choose Session:</label>
       <select id="sessionSelect"></select>
@@ -105,6 +105,13 @@
     });
 
     setupDragAndDrop();
+
+    document.getElementById("toggleBees").addEventListener("click", () => {
+      document.querySelectorAll(".zone .icon").forEach(icon => {
+        icon.style.display = icon.style.display === "none" ? "block" : "none";
+      });
+    });
+    
   }
 
   function setupDragAndDrop() {
