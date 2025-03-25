@@ -1,5 +1,49 @@
+
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Login | Zones Dashboard</title></head>
-<body><h1>Login Page</h1></body>
+<head>
+  <meta charset="UTF-8" />
+  <title>Login | Zones Dashboard</title>
+  <style>
+    body { font-family: 'Quicksand', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f9fbfd; }
+    .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, button { display: block; margin: 10px 0; padding: 10px; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🐝 Zones Dashboard Login</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="handleAuth()">Login / Sign Up</button>
+  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyBTmZv-gavHAECU5kqjTyrdABfsk_oonsM",
+      authDomain: "zonesdashboard.firebaseapp.com",
+      projectId: "zonesdashboard",
+      storageBucket: "zonesdashboard.firebasestorage.app",
+      messagingSenderId: "121203751843",
+      appId: "1:121203751843:web:1ccb23a0fcbd09fe25b816"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    window.handleAuth = async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "zones.html";
+      } catch {
+        await createUserWithEmailAndPassword(auth, email, password);
+        window.location.href = "zones.html";
+      }
+    };
+    onAuthStateChanged(auth, user => {
+      if (user) window.location.href = "zones.html";
+    });
+  </script>
+</body>
 </html>
