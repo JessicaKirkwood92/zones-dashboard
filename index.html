@@ -2,24 +2,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Login | Zones Dashboard</title>
+  <meta charset="UTF-8">
+  <title>Zones Dashboard Login</title>
   <style>
-    body { font-family: 'Quicksand', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f9fbfd; }
-    .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    input, button { display: block; margin: 10px 0; padding: 10px; width: 100%; }
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: #d6ecff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    p.subheading {
+      font-size: 14px;
+      margin-top: 0;
+      margin-bottom: 30px;
+    }
+
+    .container {
+      background: white;
+      padding: 30px 25px;
+      border-radius: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 320px;
+      text-align: left;
+    }
+
+    input, button {
+  background-color: #b2e6b2;
+  color: #333;
+  border: none;
+      display: block;
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    label {
+      font-size: 14px;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    button {
+  background-color: #b2e6b2;
+  color: #333;
+  border: none;
+      background-color: #a8d5ff;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+
+    a {
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>🐝 Zones Dashboard Login</h2>
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <button onclick="handleAuth()">Login / Sign Up</button>
+  
+  
+
+  
+    <div class="container">
+      <h1 style="text-align:center;">🐝 Welcome to Zones Dashboard</h1>
+      <p class="subheading" style="
+        font-family: 'Georgia', serif;
+        font-size: 16px;
+        font-style: italic;
+        padding: 10px 0;
+        text-align: center;
+        margin-top: 0;
+      ">
+        "Check in. Stay regulated. Support every student."
+      </p>
+    
+    <label>Email</label>
+    <input type="email" style="background:white;" id="email" placeholder="Email" />
+    <label>Password</label>
+    <input type="password" style="background:white;" id="password" placeholder="Password" />
+    <div id="extraFields" style="display: none;">
+      <label>Your Name</label>
+      <input type="text" style="background:white;" id="name" placeholder="Your name" />
+      <label>Confirm Password</label>
+      <input type="password" style="background:white;" id="confirmPassword" placeholder="Repeat password" />
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; margin-top: 5px;"><input type="checkbox" id="togglePassword" style="width:16px; height:16px;" /><span>Show Password</span></div>
+    <button onclick="handleAuth()">Login</button>
+    
+  <p id="signupToggle" style="font-size:14px;">New here? <a onclick="showSignUp()">Sign Up</a></p>
+  <p id="loginToggle" style="font-size:14px; display: none;">Already have an account? <a onclick="showLogin()">Sign In</a></p>
+  
+    <div id="error" style="color:red;"></div>
   </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyBTmZv-gavHAECU5kqjTyrdABfsk_oonsM",
       authDomain: "zonesdashboard.firebaseapp.com",
@@ -28,22 +123,114 @@
       messagingSenderId: "121203751843",
       appId: "1:121203751843:web:1ccb23a0fcbd09fe25b816"
     };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let isSignUp = false;
+
+    window.showSignUp = () => {
+      isSignUp = true;
+      document.getElementById("extraFields").style.display = "block";
+      document.querySelector("button").textContent = "Sign Up";
+    };
+
+    document.getElementById("togglePassword").addEventListener("change", (e) => {
+      const type = e.target.checked ? "text" : "password";
+      document.getElementById("password").type = type;
+      const confirm = document.getElementById("confirmPassword");
+      if (confirm) confirm.type = type;
+    });
+
     window.handleAuth = async () => {
-      const email = document.getElementById("email").value;
+      const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        window.location.href = "zones.html";
-      } catch {
-        await createUserWithEmailAndPassword(auth, email, password);
-        window.location.href = "zones.html";
+      const name = document.getElementById("name")?.value.trim();
+      const confirm = document.getElementById("confirmPassword")?.value;
+      const errorBox = document.getElementById("error");
+
+      if (!email || !password) return errorBox.textContent = "Email and password are required.";
+      if (isSignUp) {
+        const passwordIsValid = /(?=.*[A-Z])(?=.*[0-9!@#$%^&*])/.test(password);
+        if (!passwordIsValid) return errorBox.textContent = "Password must include a capital and number or symbol.";
+        if (password !== confirm) return errorBox.textContent = "Passwords do not match.";
+        try {
+          const userCred = await createUserWithEmailAndPassword(auth, email, password);
+          if (name) await updateProfile(userCred.user, { displayName: name });
+          await setDoc(doc(db, "users", userCred.user.uid), { name });
+          location.href = "zones.html";
+        } catch (err) {
+          errorBox.textContent = err.message;
+        }
+      } else {
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          location.href = "zones.html";
+        } catch (err) {
+          errorBox.textContent = err.message;
+        }
       }
     };
-    onAuthStateChanged(auth, user => {
-      if (user) window.location.href = "zones.html";
-    });
+  
+    window.showLogin = () => {
+      isSignUp = false;
+      document.getElementById("extraFields").style.display = "none";
+      document.querySelector("button").textContent = "Login";
+      document.getElementById("signupToggle").style.display = "block";
+      document.getElementById("loginToggle").style.display = "none";
+      document.getElementById("error").textContent = "";
+    };
+
+    window.showSignUp = () => {
+      isSignUp = true;
+      document.getElementById("extraFields").style.display = "block";
+      document.querySelector("button").textContent = "Sign Up";
+      document.getElementById("signupToggle").style.display = "none";
+      document.getElementById("loginToggle").style.display = "block";
+      document.getElementById("error").textContent = "";
+    };
+
+    window.handleAuth = async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const name = document.getElementById("name")?.value.trim();
+      const confirm = document.getElementById("confirmPassword")?.value;
+      const errorBox = document.getElementById("error");
+
+      if (!email || !password) return errorBox.textContent = "Email and password are required.";
+      if (isSignUp) {
+        const passwordIsValid = /(?=.*[A-Z])(?=.*[0-9!@#$%^&*])/.test(password);
+        if (!passwordIsValid) return errorBox.textContent = "Password must include a capital and number or symbol.";
+        if (password !== confirm) return errorBox.textContent = "Passwords do not match.";
+        try {
+          const userCred = await createUserWithEmailAndPassword(auth, email, password);
+          if (name) await updateProfile(userCred.user, { displayName: name });
+          await setDoc(doc(db, "users", userCred.user.uid), { name });
+          location.href = "zones.html";
+        } catch (err) {
+          if (err.code === 'auth/email-already-in-use') {
+            errorBox.textContent = "An account with this email already exists.";
+          } else {
+            errorBox.textContent = err.message;
+          }
+        }
+      } else {
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          location.href = "zones.html";
+        } catch (err) {
+          if (err.code === 'auth/user-not-found') {
+            errorBox.textContent = "No user found with this email.";
+          } else if (err.code === 'auth/wrong-password') {
+            errorBox.textContent = "Incorrect password. Please try again.";
+          } else {
+            errorBox.textContent = err.message;
+          }
+        }
+      }
+    };
   </script>
+
 </body>
 </html>
