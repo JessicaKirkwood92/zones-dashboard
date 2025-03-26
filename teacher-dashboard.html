@@ -12,8 +12,6 @@
       padding: 30px;
       background-color: var(--bg-color, #e6f7ff);
     }
-
-    
   .container {
     width: 95%;
     max-width: 1100px;
@@ -22,22 +20,13 @@
     border-radius: 20px;
     padding: 30px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  
-      background: white;
-      border-radius: 20px;
-      padding: 30px;
-      max-width: 1000px;
-      margin: auto;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-
+  }
     .nav-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 25px;
     }
-
     .nav-bar a, .nav-bar button {
       padding: 10px 14px;
       border-radius: 8px;
@@ -49,7 +38,6 @@
       color: #333;
       margin-left: 8px;
     }
-
     .fancy-greeting {
       font-family: 'Georgia', serif;
       font-size: 20px;
@@ -58,13 +46,11 @@
       margin-bottom: 25px;
       color: #444;
     }
-
     .quick-check {
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
     }
-
     .zone-summary {
       flex: 1;
       padding: 10px;
@@ -72,31 +58,22 @@
       text-align: center;
       font-weight: bold;
     }
-
     .blue { background-color: #cce5ff; }
     .green { background-color: #d4edda; }
     .yellow { background-color: #fff3cd; }
     .red { background-color: #f8d7da; }
-
     .filters, .charts {
       margin-top: 20px;
     }
-
-    
-  select, input {
-    font-family: 'Quicksand', 'Segoe UI', sans-serif;
-    font-size: 14px;
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 8px 10px;
-    border-radius: 6px;
-    margin: 6px 6px 10px 0;
-  
-      padding: 8px;
+    select, input {
+      font-family: 'Quicksand', 'Segoe UI', sans-serif;
+      font-size: 14px;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 8px 10px;
       border-radius: 6px;
-      margin-right: 8px;
+      margin: 6px 6px 10px 0;
     }
-  
     @media (max-width: 768px) {
       .nav-bar {
         flex-direction: column;
@@ -109,7 +86,6 @@
       }
     }
   </style>
-
 </head>
 <body>
   <div class="container">
@@ -120,28 +96,22 @@
       </div>
       <button id="logout">🚪 Logout</button>
     </div>
-
     <div class="fancy-greeting" id="greeting">Welcome back, Teacher! 💛</div>
-
-    
-  <div class="dashboard-wrapper">
-<h3>📅 Weekly Data:</h3>
-  <div id="weeklyGrid" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 30px;">
-    <div><strong>Day</strong></div>
-    <div><strong>Session 1</strong></div>
-    <div><strong>Session 2</strong></div>
-    <div><strong>Session 3</strong></div>
-    <div><strong>Session 4</strong></div>
-    <div><strong>Session 5</strong></div>
-    <!-- Rows will be filled dynamically -->
-  </div>
-
+    <div class="dashboard-wrapper">
+      <h3>📅 Weekly Data:</h3>
+      <div id="weeklyGrid" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 30px;">
+        <div><strong>Day</strong></div>
+        <div><strong>Session 1</strong></div>
+        <div><strong>Session 2</strong></div>
+        <div><strong>Session 3</strong></div>
+        <div><strong>Session 4</strong></div>
+        <div><strong>Session 5</strong></div>
+      </div>
       <div class="zone-summary blue" id="blueSummary">🔵 Blue: 0</div>
       <div class="zone-summary green" id="greenSummary">🟢 Green: 0</div>
       <div class="zone-summary yellow" id="yellowSummary">🟡 Yellow: 0</div>
       <div class="zone-summary red" id="redSummary">🔴 Red: 0</div>
     </div>
-
     <div class="filters">
       <h3>🎛 Filters</h3>
       <select id="classFilter"><option value="">Select Class</option></select>
@@ -151,203 +121,165 @@
       <button id="applyFilters">Apply</button>
       <button id="exportCSV">Export CSV</button>
     </div>
-
     <div class="charts">
       <canvas id="barChart" width="400" height="200"></canvas>
       <canvas id="pieChart" width="400" height="200"></canvas>
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+import Chart from "https://cdn.jsdelivr.net/npm/chart.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBTmZv-gavHAECU5kqjTyrdABfsk_oonsM",
-      authDomain: "zonesdashboard.firebaseapp.com",
-      projectId: "zonesdashboard",
-      storageBucket: "zonesdashboard.firebasestorage.app",
-      messagingSenderId: "121203751843",
-      appId: "1:121203751843:web:1ccb23a0fcbd09fe25b816"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyBTmZv-gavHAECU5kqjTyrdABfsk_oonsM",
+  authDomain: "zonesdashboard.firebaseapp.com",
+  projectId: "zonesdashboard",
+  storageBucket: "zonesdashboard.firebasestorage.app",
+  messagingSenderId: "121203751843",
+  appId: "1:121203751843:web:1ccb23a0fcbd09fe25b816"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth();
+const greeting = document.getElementById("greeting");
 
-    const greeting = document.getElementById("greeting");
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      const name = userSnap.data().name || "Teacher";
+      const color = userSnap.data().color || "#e6f7ff";
+      document.body.style.setProperty("--bg-color", color);
+      greeting.textContent = `Welcome back, ${name}! 💛`;
+      await loadWeeklySummary(user);
+      await loadWeeklySessionGrid(user);
+    }
+  }
+});
 
-    onAuthStateChanged(auth, async user => {
-      if (user) {
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          const name = userSnap.data().name || "Teacher";
-          const color = userSnap.data().color || "#e6f7ff";
-          document.body.style.setProperty("--bg-color", color);
-          greeting.textContent = `Welcome back, ${name}! 💛`;
-        }
+document.getElementById("logout").addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "index.html";
+});
+
+const barCtx = document.getElementById("barChart").getContext("2d");
+const pieCtx = document.getElementById("pieChart").getContext("2d");
+let barChart, pieChart;
+
+function renderCharts(zoneCounts) {
+  if (barChart) barChart.destroy();
+  if (pieChart) pieChart.destroy();
+
+  barChart = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Blue', 'Green', 'Yellow', 'Red'],
+      datasets: [{
+        label: 'Check-Ins',
+        data: [zoneCounts.blue, zoneCounts.green, zoneCounts.yellow, zoneCounts.red],
+        backgroundColor: ['#cce5ff', '#d4edda', '#fff3cd', '#f8d7da']
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+
+  pieChart = new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+      labels: ['Blue', 'Green', 'Yellow', 'Red'],
+      datasets: [{
+        data: [zoneCounts.blue, zoneCounts.green, zoneCounts.yellow, zoneCounts.red],
+        backgroundColor: ['#cce5ff', '#d4edda', '#fff3cd', '#f8d7da']
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+}
+
+function getCurrentWeekDates() {
+  const today = new Date();
+  const monday = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+  return Array.from({ length: 5 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d.toISOString().split('T')[0];
+  });
+}
+
+async function loadWeeklySummary(user) {
+  const weekDates = getCurrentWeekDates();
+  const allLogs = await getDocs(collection(db, "users", user.uid, "logs"));
+  const zoneCounts = { blue: 0, green: 0, yellow: 0, red: 0 };
+
+  allLogs.forEach(doc => {
+    const entries = doc.data().entries || [];
+    entries.forEach(entry => {
+      if (weekDates.includes(entry.date)) {
+        zoneCounts[entry.zone]++;
       }
     });
+  });
 
-    document.getElementById("logout").addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.href = "index.html";
-    });
-  
-    import Chart from "https://cdn.jsdelivr.net/npm/chart.js";
+  document.getElementById("blueSummary").textContent = `🔵 Blue: ${zoneCounts.blue}`;
+  document.getElementById("greenSummary").textContent = `🟢 Green: ${zoneCounts.green}`;
+  document.getElementById("yellowSummary").textContent = `🟡 Yellow: ${zoneCounts.yellow}`;
+  document.getElementById("redSummary").textContent = `🔴 Red: ${zoneCounts.red}`;
 
-    const barCtx = document.getElementById("barChart").getContext("2d");
-    const pieCtx = document.getElementById("pieChart").getContext("2d");
-    let barChart, pieChart;
+  renderCharts(zoneCounts);
+}
 
-    function renderCharts(zoneCounts) {
-      if (barChart) barChart.destroy();
-      if (pieChart) pieChart.destroy();
+function createDot(color, count) {
+  return `<div style="display: inline-flex; align-items: center; margin: 2px;">
+    <div style="width: 16px; height: 16px; border-radius: 50%; background-color: ${color}; margin-right: 5px;"></div>
+    <span style="font-size: 12px;">${count}</span>
+  </div>`;
+}
 
-      barChart = new Chart(barCtx, {
-        type: 'bar',
-        data: {
-          labels: ['Blue', 'Green', 'Yellow', 'Red'],
-          datasets: [{
-            label: 'Check-Ins',
-            data: [zoneCounts.blue, zoneCounts.green, zoneCounts.yellow, zoneCounts.red],
-            backgroundColor: ['#cce5ff', '#d4edda', '#fff3cd', '#f8d7da']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
+async function loadWeeklySessionGrid(user) {
+  const weekDates = getCurrentWeekDates();
+  const sessionCount = 5;
+  const zoneColors = { blue: '#cce5ff', green: '#d4edda', yellow: '#fff3cd', red: '#f8d7da' };
+  const grid = document.getElementById("weeklyGrid");
 
-      pieChart = new Chart(pieCtx, {
-        type: 'pie',
-        data: {
-          labels: ['Blue', 'Green', 'Yellow', 'Red'],
-          datasets: [{
-            data: [zoneCounts.blue, zoneCounts.green, zoneCounts.yellow, zoneCounts.red],
-            backgroundColor: ['#cce5ff', '#d4edda', '#fff3cd', '#f8d7da']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-    }
-
-    function getCurrentWeekDates() {
-      const today = new Date();
-      const monday = new Date(today.setDate(today.getDate() - today.getDay() + 1));
-      return Array.from({ length: 5 }, (_, i) => {
-        const d = new Date(monday);
-        d.setDate(monday.getDate() + i);
-        return d.toISOString().split('T')[0];
-      });
-    }
-
-    async function loadWeeklySummary(user) {
-      const weekDates = getCurrentWeekDates();
-      const allLogs = await getDocs(collection(db, "users", user.uid, "logs"));
-      const zoneCounts = { blue: 0, green: 0, yellow: 0, red: 0 };
-
-      allLogs.forEach(doc => {
-        const entries = doc.data().entries || [];
-        entries.forEach(entry => {
-          if (weekDates.includes(entry.date)) {
-            zoneCounts[entry.zone]++;
-          }
-        });
-      });
-
-      document.getElementById("blueSummary").textContent = `🔵 Blue: ${zoneCounts.blue}`;
-      document.getElementById("greenSummary").textContent = `🟢 Green: ${zoneCounts.green}`;
-      document.getElementById("yellowSummary").textContent = `🟡 Yellow: ${zoneCounts.yellow}`;
-      document.getElementById("redSummary").textContent = `🔴 Red: ${zoneCounts.red}`;
-
-      renderCharts(zoneCounts);
-    }
-
-    onAuthStateChanged(auth, async user => {
-      if (user) {
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          const name = userSnap.data().name || "Teacher";
-          const color = userSnap.data().color || "#e6f7ff";
-          document.body.style.setProperty("--bg-color", color);
-          greeting.textContent = `Welcome back, ${name}! 💛`;
-          await loadWeeklySummary(user);
-        }
-      }
-    });
-  
-    function createDot(color, count) {
-      return `<div style="display: inline-flex; align-items: center; margin: 2px;">
-        <div style="width: 16px; height: 16px; border-radius: 50%; background-color: ${color}; margin-right: 5px;"></div>
-        <span style="font-size: 12px;">${count}</span>
-      </div>`;
-    }
-
-    async function loadWeeklySessionGrid(user) {
-      const weekDates = getCurrentWeekDates();
-      const sessionCount = 5; // for demo; can be dynamic later
-      const zoneColors = { blue: '#cce5ff', green: '#d4edda', yellow: '#fff3cd', red: '#f8d7da' };
-      const grid = document.getElementById("weeklyGrid");
-
-      
   const dateLabelMap = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
   for (let d = 0; d < weekDates.length; d++) {
     const date = weekDates[d];
     const weekday = dateLabelMap[d];
+    const row = [`<div style="padding: 6px 8px; background: #f0f8ff; border-radius: 8px; font-weight: bold; border: 1px solid #c2d8f5;">${weekday}</div>`];
 
-        const dateObj = new Date(date);
-        const weekday = dateObj.toLocaleDateString('en-AU', { weekday: 'long' });
+    const logRef = doc(db, "users", user.uid, "logs", date);
+    const logSnap = await getDoc(logRef);
+    const sessionData = Array.from({ length: sessionCount }, () => ({ blue: 0, green: 0, yellow: 0, red: 0 }));
 
-        const row = [`<div style="padding: 6px 8px; background: #f0f8ff; border-radius: 8px; font-weight: bold; border: 1px solid #c2d8f5;">${weekday}</div>`];
-
-        const logRef = doc(db, "users", user.uid, "logs", date);
-        const logSnap = await getDoc(logRef);
-        const sessionData = Array.from({ length: sessionCount }, () => ({ blue: 0, green: 0, yellow: 0, red: 0 }));
-
-        if (logSnap.exists()) {
-          const entries = logSnap.data().entries || [];
-          entries.forEach(entry => {
-            const sessionIndex = parseInt(entry.session.split(" ")[1]) - 1;
-            if (sessionData[sessionIndex] && sessionData[sessionIndex][entry.zone] !== undefined) {
-              sessionData[sessionIndex][entry.zone]++;
-            }
-          });
+    if (logSnap.exists()) {
+      const entries = logSnap.data().entries || [];
+      entries.forEach(entry => {
+        const sessionIndex = parseInt(entry.session.split(" ")[1]) - 1;
+        if (sessionData[sessionIndex] && sessionData[sessionIndex][entry.zone] !== undefined) {
+          sessionData[sessionIndex][entry.zone]++;
         }
-
-        for (let i = 0; i < sessionCount; i++) {
-          const session = sessionData[i];
-          let cell = "";
-          for (const zone in session) {
-            if (session[zone] > 0) {
-              cell += createDot(zoneColors[zone], session[zone]);
-            }
-          }
-          row.push(`<div style="display:flex; flex-direction:column;">${cell || "-"}</div>`);
-        }
-
-        grid.insertAdjacentHTML("beforeend", row.join(""));
-      }
+      });
     }
 
-    onAuthStateChanged(auth, async user => {
-      if (user) {
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          const name = userSnap.data().name || "Teacher";
-          const color = userSnap.data().color || "#e6f7ff";
-          document.body.style.setProperty("--bg-color", color);
-          greeting.textContent = `Welcome back, ${name}! 💛`;
-          await loadWeeklySummary(user);
-          await loadWeeklySessionGrid(user);
+    for (let i = 0; i < sessionCount; i++) {
+      const session = sessionData[i];
+      let cell = "";
+      for (const zone in session) {
+        if (session[zone] > 0) {
+          cell += createDot(zoneColors[zone], session[zone]);
         }
       }
-    });
-  </script>
+      row.push(`<div style="display:flex; flex-direction:column;">${cell || "-"}</div>`);
+    }
 
-
-</div>
+    grid.insertAdjacentHTML("beforeend", row.join(""));
+  }
+}
+</script>
 </body>
 </html>
