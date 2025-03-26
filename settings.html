@@ -1,11 +1,10 @@
 
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>Settings</title>
-<style>
+  <meta charset="utf-8"/>
+  <title>Settings</title>
+  <style>
     body {
       font-family: 'Quicksand', sans-serif;
       background-color: #e6f7ff;
@@ -77,192 +76,82 @@
       color: #555;
     }
   </style>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, updateProfile, updateEmail, updatePassword } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBTmZv-gavHAECU5kqjTyrdABfsk_oonsM",
-      authDomain: "zonesdashboard.firebaseapp.com",
-      projectId: "zonesdashboard",
-      storageBucket: "zonesdashboard.firebasestorage.app",
-      messagingSenderId: "121203751843",
-      appId: "1:121203751843:web:1ccb23a0fcbd09fe25b816"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth();
-
-    let currentUID = null;
-
-    onAuthStateChanged(auth, async user => {
-      if (user) {
-        currentUID = user.uid;
-        const snap = await getDoc(doc(db, "users", user.uid));
-        if (snap.exists()) {
-          const data = snap.data();
-          document.querySelector("#account input[type='text']").value = data.name || "";
-          document.querySelector("#account input[type='email']").value = user.email || "";
-          document.querySelector("#class textarea").value = (data.students || []).join(", ");
-          document.querySelector("#class-name").value = data.className || "";
-          document.querySelector("#customisation select").value = data.sessions || "2";
-          document.querySelector("#customisation select:nth-of-type(2)").value = data.color || "Soft Blue";
-          document.querySelector("#customisation input[type='checkbox']").checked = data.view === "calendar";
-        }
-      }
-    });
-
-    window.saveAccount = async () => {
-      const name = document.querySelector("#account input[type='text']").value;
-      const email = document.querySelector("#account input[type='email']").value;
-      const password = document.querySelector("#account input[type='password']").value;
-      const user = auth.currentUser;
-      if (!user) return;
-
-      if (name) await updateProfile(user, { displayName: name });
-      if (email && email !== user.email) await updateEmail(user, email);
-      if (password.length > 5) await updatePassword(user, password);
-
-      await setDoc(doc(db, "users", user.uid), { name }, { merge: true });
-      showConfirmation("account");
-    };
-
-    window.saveStudents = async () => {
-      const className = document.getElementById("class-name").value.trim();
-      const list = document.querySelector("#class textarea").value;
-      const students = list.split(",").map(s => s.trim()).filter(Boolean);
-      await setDoc(doc(db, "users", currentUID), { students, className }, { merge: true });
-      showConfirmation("class");
-    };
-
-    window.saveTheme = async () => {
-      const sessions = document.querySelector("#customisation select").value;
-      const color = document.querySelector("#customisation select:nth-of-type(2)").value;
-      const view = document.querySelector("#customisation input[type='checkbox']").checked ? "calendar" : "chart";
-      await setDoc(doc(db, "users", currentUID), { sessions, color, view }, { merge: true });
-      showConfirmation("customisation");
-    };
-  
-    function handleImport() {
-      const raw = prompt("Paste your list of student first names (one per line):");
-      if (raw) {
-        const names = raw
-          .split(/\r?\n/)
-          .map(name => name.trim())
-          .filter((name, i, self) => name && self.indexOf(name) === i);
-        const textarea = document.querySelector("#class textarea");
-        textarea.value = names.join(", ");
-      }
-    }
-    
-    function handleImport() {
-      const raw = prompt("Paste your list of student first names (one per line):");
-      if (raw) {
-        const names = raw
-          .split(/\r?\n/)
-          .map(name => name.trim())
-          .filter((name, i, self) => name && self.indexOf(name) === i);
-        const textarea = document.querySelector("#class textarea");
-        textarea.value = names.join(", ");
-      }
-    }
-    
-        
-        }
-        </script>
 </head>
 <body>
-<div class="container">
-<div class="nav-bar">
-<div>
-<a href="zones.html">🏠 Zones</a>
-<a href="teacher-dashboard.html">📊 Dashboard</a>
-<a href="settings.html">⚙️ Settings</a>
-</div>
-<button id="logout">🚪 Logout</button>
-</div>
-<div class="tabs">
-<button class="active" onclick="switchTab('account')">Account</button>
-<button onclick="switchTab('class')">Class Management</button>
-<button onclick="switchTab('customisation')">Dashboard Customisation</button>
-</div>
-<div class="section active" id="account">
-<h3>👤 Account Info</h3>
-<div class="input-group">
-<label>Your Name</label>
-<input placeholder="Enter your name" type="text"/>
-</div>
-<div class="input-group">
-<label>Email</label>
-<input placeholder="Enter your email" type="email"/>
-</div>
-<div class="input-group">
-<label>New Password</label>
-<input placeholder="Enter new password" type="password"/>
-</div>
-<button onclick="saveAccount()">💾 Save Changes</button>
-<p class="confirm-message" id="confirm-account" style="display:none; color: green; font-size: 14px; margin-top: 5px;">Saved successfully!</p>
-<p style="font-size: 12px; margin-top: 10px;">Last updated: just now</p>
-<button style="margin-top: 10px;">🧼 Reset Account Info</button>
-</div>
-<div class="section" id="class">
-<h3>🏫 Class Management</h3>
-<div class="input-group">
-<label>Select Class</label>
-<select><option>Select a class</option></select>
-</div>
-<div class="input-group" style="max-width: 700px;">
-<label>Class Name</label>
-<input id="class-name" placeholder="e.g. Room 3, Year 5 Blue" style="margin-bottom: 10px;" type="text"/>
-<label>Student List</label>
-<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 10px; max-width: 700px;">
-<button id="importButton" onclick="importNames()" style="margin: 0;" type="button">📥 Import First Names</button>
-<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 10px;">
-<textarea placeholder="Enter student names separated by commas" rows="20" style="width: 100%;"></textarea></div>
-</div>
-</div>
-<button>➕ Add Class</button>
-<button>➖ Remove Class</button>
-<button onclick="saveStudents()">💾 Save Students</button>
-<p class="confirm-message" id="confirm-class" style="display:none; color: green; font-size: 14px; margin-top: 5px;">Saved successfully!</p>
-<div style="margin-top: 15px;">
-<label><input type="checkbox"/> Remind me to check in students daily</label><br/>
-<button style="margin-top: 10px;">🧼 Reset Class Data</button>
-</div>
-</div>
-<div class="section" id="customisation">
-<h3>🎨 Dashboard Customisation</h3>
-<div class="input-group">
-<label>Number of Daily Sessions</label>
-<select>
-<option>2</option><option>3</option><option>4</option><option>5</option>
-<option>6</option><option>7</option><option>8</option>
-</select>
-</div>
-<div class="input-group">
-<label>Choose Your Background Theme</label>
-<select>
-<option>Soft Blue</option><option>Mint Green</option><option>Blush Pink</option><option>Lavender</option>
-<option>Peach</option><option>Butter Yellow</option><option>Sage</option><option>Sky Grey</option>
-</select>
-</div>
-<button onclick="saveTheme()">💾 Save Theme</button>
-<p class="confirm-message" id="confirm-customisation" style="display:none; color: green; font-size: 14px; margin-top: 5px;">Saved successfully!</p>
-<div class="input-group" style="margin-top: 20px;">
-<label><input type="checkbox"/> Show calendar view instead of charts</label>
-</div>
-<p class="quote">🌼 “Small steps lead to big change.”</p>
-</div>
-</div>
+  <div class="container">
+    <div class="nav-bar">
+      <div>
+        <a href="zones.html">🏠 Zones</a>
+        <a href="teacher-dashboard.html">📊 Dashboard</a>
+        <a href="settings.html">⚙️ Settings</a>
+      </div>
+      <button id="logout">🚪 Logout</button>
+    </div>
+    <div class="tabs">
+      <button class="active" onclick="switchTab('account')">Account</button>
+      <button onclick="switchTab('class')">Class Management</button>
+      <button onclick="switchTab('customisation')">Dashboard Customisation</button>
+    </div>
+    <div class="section active" id="account">
+      <h3>👤 Account Info</h3>
+      <div class="input-group">
+        <label>Your Name</label>
+        <input placeholder="Enter your name" type="text" id="account-name"/>
+      </div>
+      <div class="input-group">
+        <label>Email</label>
+        <input placeholder="Enter your email" type="email" id="account-email"/>
+      </div>
+      <div class="input-group">
+        <label>New Password</label>
+        <input placeholder="Enter new password" type="password" id="account-password"/>
+      </div>
+      <button onclick="saveAccount()">💾 Save Changes</button>
+      <p class="confirm-message" id="confirm-account" style="display:none; color: green; font-size: 14px; margin-top: 5px;">Saved successfully!</p>
+    </div>
+    <div class="section" id="class">
+      <h3>🏫 Class Management</h3>
+      <div class="input-group">
+        <label>Class Name</label>
+        <input id="class-name" placeholder="e.g. Room 3, Year 5 Blue" type="text"/>
+      </div>
+      <div class="input-group">
+        <label>Student List</label>
+        <button onclick="handleImport()">📥 Import First Names</button>
+        <textarea id="student-list" placeholder="Enter student names separated by commas" rows="20"></textarea>
+      </div>
+      <button onclick="saveStudents()">💾 Save Students</button>
+      <p class="confirm-message" id="confirm-class" style="display:none; color: green; font-size: 14px; margin-top: 5px;">Saved successfully!</p>
+    </div>
+    <div class="section" id="customisation">
+      <h3>🎨 Dashboard Customisation</h3>
+      <div class="input-group">
+        <label>Number of Daily Sessions</label>
+        <select id="session-count">
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+          <option>5</option><option>6</option><option>7</option><option>8</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Choose Your Background Theme</label>
+        <select id="theme-color">
+          <option>Soft Blue</option><option>Mint Green</option><option>Blush Pink</option><option>Lavender</option>
+          <option>Peach</option><option>Butter Yellow</option><option>Sage</option><option>Sky Grey</option>
+        </select>
+      </div>
+      <button onclick="saveTheme()">💾 Save Theme</button>
+      <p class="confirm-message" id="confirm-customisation" style="display:none; color: green; font-size: 14px; margin-top: 5px;">Saved successfully!</p>
+    </div>
+    <p class="quote">🌼 “Small steps lead to big change.”</p>
+  </div>
 
 <script>
-  function switchTab(tabId) {
-    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    event.target.classList.add('active');
-  }
-</script></body>
+function switchTab(tabId) {
+  document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
 </html>
