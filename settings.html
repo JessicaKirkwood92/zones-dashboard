@@ -2,12 +2,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="UTF-8" />
   <title>Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Quicksand', sans-serif;
-      background-color: #e6f7ff;
+      background-color: var(--bg-color, #e6f7ff);
       margin: 0;
       padding: 20px;
     }
@@ -75,83 +76,103 @@
       margin-top: 30px;
       color: #555;
     }
+    textarea {
+      resize: vertical;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="nav-bar">
-      <div>
-        <a href="zones.html">🏠 Zones</a>
-        <a href="teacher-dashboard.html">📊 Dashboard</a>
-        <a href="settings.html">⚙️ Settings</a>
-      </div>
-      <button id="logout">🚪 Logout</button>
+<div class="container">
+  <div class="nav-bar">
+    <div>
+      <a href="zones.html">🏠 Zones</a>
+      <a href="teacher-dashboard.html">📊 Dashboard</a>
+      <a href="settings.html">⚙️ Settings</a>
     </div>
-    <div class="tabs">
-      <button class="active" onclick="switchTab('account')">Account</button>
-      <button onclick="switchTab('class')">Class Management</button>
-      <button onclick="switchTab('customisation')">Dashboard Customisation</button>
-    </div>
-    <div class="section active" id="account">
-      <h3>👤 Account Info</h3>
-      <div class="input-group">
-        <label>Your Name</label>
-        <input placeholder="Enter your name" type="text" id="account-name"/>
-      </div>
-      <div class="input-group">
-        <label>Email</label>
-        <input placeholder="Enter your email" type="email" id="account-email"/>
-      </div>
-      <div class="input-group">
-        <label>New Password</label>
-        <input placeholder="Enter new password" type="password" id="account-password"/>
-      </div>
-      <button onclick="saveAccount()">💾 Save Changes</button>
-      <p class="confirm-message" id="confirm-account" style="display:none; color: green; font-size: 14px; margin-top: 5px;">Saved successfully!</p>
-    </div>
-    <div class="section" id="class">
-      <h3>🏫 Class Management</h3>
-      <div class="input-group">
-        <label>Class Name</label>
-        <input id="class-name" placeholder="e.g. Room 3, Year 5 Blue" type="text"/>
-      </div>
-      <div class="input-group">
-        <label>Student List</label>
-        <button onclick="handleImport()">📥 Import First Names</button>
-        <textarea id="student-list" placeholder="Enter student names separated by commas" rows="20"></textarea>
-      </div>
-      <button onclick="saveStudents()">💾 Save Students</button>
-      <p class="confirm-message" id="confirm-class" style="display:none; color: green; font-size: 14px; margin-top: 5px;">Saved successfully!</p>
-    </div>
-    <div class="section" id="customisation">
-      <h3>🎨 Dashboard Customisation</h3>
-      <div class="input-group">
-        <label>Number of Daily Sessions</label>
-        <select id="session-count">
-          <option>1</option><option>2</option><option>3</option><option>4</option>
-          <option>5</option><option>6</option><option>7</option><option>8</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label>Choose Your Background Theme</label>
-        <select id="theme-color">
-          <option>Soft Blue</option><option>Mint Green</option><option>Blush Pink</option><option>Lavender</option>
-          <option>Peach</option><option>Butter Yellow</option><option>Sage</option><option>Sky Grey</option>
-        </select>
-      </div>
-      <button onclick="saveTheme()">💾 Save Theme</button>
-      <p class="confirm-message" id="confirm-customisation" style="display:none; color: green; font-size: 14px; margin-top: 5px;">Saved successfully!</p>
-    </div>
-    <p class="quote">🌼 “Small steps lead to big change.”</p>
+    <button id="logout">🚪 Logout</button>
   </div>
 
+  <div class="tabs">
+    <button class="active" onclick="switchTab('account')">Account</button>
+    <button onclick="switchTab('class')">Class Management</button>
+    <button onclick="switchTab('customisation')">Dashboard Customisation</button>
+  </div>
+
+  <div class="section active" id="account">
+    <h3>👤 Account Info</h3>
+    <div class="input-group">
+      <label>Your Name</label>
+      <input placeholder="Enter your name" type="text" />
+    </div>
+    <div class="input-group">
+      <label>Email</label>
+      <input placeholder="Enter your email" type="email" />
+    </div>
+    <div class="input-group">
+      <label>New Password</label>
+      <input placeholder="Enter new password" type="password" />
+    </div>
+    <button onclick="alert('Saved!')">💾 Save Changes</button>
+  </div>
+
+  <div class="section" id="class">
+    <h3>🏫 Class Management</h3>
+    <div class="input-group">
+      <label>Select Class</label>
+      <select><option>Class 1</option><option>Class 2</option></select>
+    </div>
+    <div class="input-group">
+      <label>Class Name</label>
+      <input id="class-name" placeholder="e.g. Room 3, Year 5 Blue" />
+    </div>
+    <div class="input-group">
+      <label>Student List</label>
+      <textarea rows="20" placeholder="Enter student names, comma separated"></textarea>
+    </div>
+    <button>➕ Add Class</button>
+    <button>✏️ Edit Class</button>
+    <button>➖ Remove Class</button>
+    <button>📥 Import First Names</button>
+    <button>🔤 Sort Alphabetically</button>
+    <button>🧹 Clear Students</button>
+    <button>📌 Pin as Default</button>
+  </div>
+
+  <div class="section" id="customisation">
+    <h3>🎨 Dashboard Customisation</h3>
+    <div class="input-group">
+      <label>Number of Daily Sessions</label>
+      <select><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select>
+    </div>
+    <div class="input-group">
+      <label>Background Theme</label>
+      <select><option>Soft Blue</option><option>Mint Green</option><option>Lavender</option><option>Blush Pink</option></select>
+    </div>
+    <div class="input-group">
+      <label><input type="checkbox" /> Export anonymously (no names)</label>
+    </div>
+    <div class="input-group">
+      <label><input type="checkbox" /> Show calendar instead of charts</label>
+    </div>
+    <div class="input-group">
+      <label>🌼 Weekly Observation Notes</label>
+      <textarea rows="5" placeholder="Write weekly context, reflections or wellbeing patterns here..."></textarea>
+    </div>
+    <div class="input-group">
+      <label><input type="checkbox" /> Show daily mental health tips</label>
+    </div>
+    <button onclick="alert('Saved!')">💾 Save Preferences</button>
+    <p class="quote">🌿 “Small steps lead to big change.”</p>
+  </div>
+</div>
+
 <script>
-function switchTab(tabId) {
-  document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(tabId).classList.add('active');
-  event.target.classList.add('active');
-}
+  function switchTab(tabId) {
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+  }
 </script>
 </body>
 </html>
