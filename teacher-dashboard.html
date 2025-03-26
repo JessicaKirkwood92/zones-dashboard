@@ -98,7 +98,13 @@
     </div>
     <div class="fancy-greeting" id="greeting">Welcome back, Teacher! 💛</div>
     <div class="dashboard-wrapper">
-      <h3>📅 Weekly Data:</h3>
+      
+    <h3>📅 Weekly Data:</h3>
+    <label for="weeklyClassFilter">Select Class:</label>
+    <select id="weeklyClassFilter" style="margin-bottom: 15px;">
+      <option value="">All Classes</option>
+    </select>
+    
       <div id="weeklyGrid" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 30px;">
         <div><strong>Day</strong></div>
         <div><strong>Session 1</strong></div>
