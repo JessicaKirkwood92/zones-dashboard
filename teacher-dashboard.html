@@ -293,5 +293,66 @@ async function loadWeeklySessionGrid(user) {
   }
 }
 </script>
-</body>
+
+<script type="module">
+import { collection, query, where } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+
+// Helper to download CSV
+function downloadCSV(data, filename = "zones-data.csv") {
+  const csvContent = "data:text/csv;charset=utf-8," + [
+    ["Date", "Session", "Student", "Zone", "Class"],
+    ...data.map(e => [e.date, e.session, e.name, e.zone, e.class].join(","))
+  ].join("\n");
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+document.getElementById("exportCSV").addEventListener("click", async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const classFilter = document.getElementById("classFilter").value;
+  const sessionFilter = document.getElementById("sessionFilter").value;
+  const studentFilter = document.getElementById("studentFilter").value;
+  const dateFilter = document.getElementById("dateFilter").value;
+  const anonymise = document.getElementById("anonymiseNames").checked;
+
+  const allLogs = await getDocs(collection(db, "users", user.uid, "logs"));
+  let exportData = [];
+
+  allLogs.forEach(docSnap => {
+    const entries = docSnap.data().entries || [];
+    entries.forEach((entry, index) => {
+      if (
+        (!classFilter || entry.class === classFilter) &&
+        (!sessionFilter || entry.session === sessionFilter) &&
+        (!studentFilter || entry.name === studentFilter) &&
+        (!dateFilter || entry.date === dateFilter)
+      ) {
+        exportData.push({
+          date: entry.date,
+          session: entry.session,
+          name: anonymise ? `Student ${index + 1}` : entry.name,
+          zone: entry.zone,
+          class: entry.class || ""
+        });
+      }
+    });
+  });
+
+  if (exportData.length === 0) {
+    alert("No data found for the selected filters.");
+    return;
+  }
+
+  downloadCSV(exportData);
+});
+</script>
 </html>
+
