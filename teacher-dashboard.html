@@ -125,7 +125,13 @@
       <input type="date" id="dateFilter" />
       <select id="studentFilter"><option value="">Select Student</option></select>
       <button id="applyFilters">Apply</button>
-      <button id="exportCSV">Export CSV</button>
+      
+    <label style="margin-left: 10px;">
+      <input type="checkbox" id="anonymiseNames" />
+      Anonymise student names
+    </label>
+    <button id="exportCSV">Export CSV</button>
+    
     </div>
     <div class="charts">
       <canvas id="barChart" width="400" height="200"></canvas>
