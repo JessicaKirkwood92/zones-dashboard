@@ -171,5 +171,15 @@
     </div>
     <span class="toggle-link" onclick="toggleForm()">Already have an account? Sign in</span>
   </div>
+
+<script>
+document.querySelector("form").addEventListener("submit", function(e) {
+  const codeInput = document.getElementById("accessCode");
+  if (codeInput && codeInput.value !== "BUZZBETA2025") {
+    e.preventDefault();
+    document.getElementById("codeError").style.display = "block";
+  }
+});
+</script>
 </body>
 </html>
